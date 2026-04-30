@@ -32,7 +32,7 @@ app.post("/chat", async (req, res) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        mmodel: "llama-3.1-8b-instant",
+        model: "llama-3.1-8b-instant",
         messages: [
           {
             role: "system",
