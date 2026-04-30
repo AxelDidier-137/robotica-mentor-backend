@@ -11,6 +11,7 @@ const API_KEY = process.env.API_KEY;
 // Logs
 console.log("SERVIDOR ACTUALIZADO 🚀");
 console.log("API KEY PRESENTE:", !!API_KEY);
+console.log("VERSION NUEVA DEL BACKEND 🔥");
 
 app.get("/", (req, res) => {
   res.send("Servidor activo 🚀");
