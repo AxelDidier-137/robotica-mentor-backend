@@ -5,10 +5,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 👇 API KEY (debe existir en Render como API_KEY)
 const API_KEY = process.env.API_KEY;
 
-// 👇 logs para confirmar que sí se actualizó
 console.log("SERVIDOR ACTUALIZADO 🚀");
 console.log("API KEY:", API_KEY);
 
@@ -22,18 +20,18 @@ app.post("/chat", async (req, res) => {
   const { message } = req.body;
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3-8b-instruct:free",
+        model: "llama3-8b-8192",
         messages: [
           {
             role: "system",
-            content: "Eres un mentor de robótica exigente. Explica claro, corrige errores, da ejemplos en C++ y haz preguntas."
+            content: "Eres un mentor de robótica exigente. Explica claro, corrige errores, da ejemplos en C++ y desafía al usuario."
           },
           ...memory,
           { role: "user", content: message }
@@ -45,14 +43,12 @@ app.post("/chat", async (req, res) => {
 
     console.log("RESPUESTA IA:", JSON.stringify(data, null, 2));
 
-    let reply = "No hubo respuesta válida";
+    let reply = "No hubo respuesta";
 
     if (data.choices && data.choices.length > 0) {
-      reply = data.choices[0].message?.content || data.choices[0].text;
+      reply = data.choices[0].message.content;
     } else if (data.error) {
       reply = "Error IA: " + data.error.message;
-    } else {
-      reply = JSON.stringify(data);
     }
 
     memory.push({ role: "user", content: message });
