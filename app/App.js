@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
 
 export default function App() {
   const [text, setText] = useState("");
@@ -14,11 +8,10 @@ export default function App() {
   const send = async () => {
     if (!text.trim()) return;
 
-    const userMsg = { role: "user", content: text };
-    setChat([...chat, userMsg]);
+    setChat(prev => [...prev, { role: "user", content: text }]);
 
     try {
-      const res = await fetch("https://robotica-mentor.onrender.com/chat", {
+      const res = await fetch("https://robotica-mentor-backend.onrender.com/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -28,16 +21,11 @@ export default function App() {
 
       const data = await res.json();
 
-      const aiMsg = { role: "assistant", content: data.reply };
-
-      setChat(prev => [...prev, aiMsg]);
+      setChat(prev => [...prev, { role: "assistant", content: data.reply }]);
       setText("");
 
     } catch (e) {
-      setChat(prev => [
-        ...prev,
-        { role: "assistant", content: "Error conectando 😞" }
-      ]);
+      setChat(prev => [...prev, { role: "assistant", content: "Error 😞" }]);
     }
   };
 
@@ -55,24 +43,11 @@ export default function App() {
       <TextInput
         value={text}
         onChangeText={setText}
-        placeholder="Pregunta de robótica..."
-        style={{
-          borderWidth: 1,
-          padding: 10,
-          marginBottom: 10,
-          borderRadius: 8
-        }}
+        placeholder="Pregunta..."
+        style={{ borderWidth: 1, padding: 10, marginBottom: 10 }}
       />
 
-      <TouchableOpacity
-        onPress={send}
-        style={{
-          backgroundColor: "#2563eb",
-          padding: 15,
-          borderRadius: 10,
-          alignItems: "center"
-        }}
-      >
+      <TouchableOpacity onPress={send} style={{ backgroundColor: "blue", padding: 15 }}>
         <Text style={{ color: "white" }}>Enviar</Text>
       </TouchableOpacity>
     </View>

@@ -8,8 +8,7 @@ app.use(express.json());
 
 const API_KEY = process.env.API_KEY;
 
-console.log("BACKEND NUEVO ACTIVO 🚀");
-console.log("API KEY:", !!API_KEY);
+console.log("BACKEND NUEVO REAL 🚀");
 
 app.get("/", (req, res) => {
   res.send("Backend funcionando 🚀");
@@ -30,7 +29,7 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "Eres un mentor de robótica exigente. Explica bien, corrige, y da ejemplos en C++."
+            content: "Eres un mentor de robótica exigente."
           },
           {
             role: "user",
@@ -41,7 +40,6 @@ app.post("/chat", async (req, res) => {
     });
 
     const data = await response.json();
-    console.log("RESPUESTA IA:", data);
 
     let reply = "Sin respuesta";
 
@@ -53,9 +51,8 @@ app.post("/chat", async (req, res) => {
 
     res.json({ reply });
 
-  } catch (error) {
-    console.log("ERROR:", error);
-    res.json({ reply: "Error conectando con IA" });
+  } catch (err) {
+    res.json({ reply: "Error conectando" });
   }
 });
 
