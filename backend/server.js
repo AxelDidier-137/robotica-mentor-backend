@@ -8,21 +8,15 @@ app.use(express.json());
 
 const API_KEY = process.env.API_KEY;
 
-// Logs
-console.log("SERVIDOR ACTUALIZADO 🚀");
-console.log("API KEY PRESENTE:", !!API_KEY);
-console.log("VERSION NUEVA DEL BACKEND 🔥");
+console.log("BACKEND NUEVO ACTIVO 🚀");
+console.log("API KEY:", !!API_KEY);
 
 app.get("/", (req, res) => {
-  res.send("Servidor activo 🚀");
+  res.send("Backend funcionando 🚀");
 });
 
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
-
-  if (!API_KEY) {
-    return res.json({ reply: "Error: API_KEY no configurada" });
-  }
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -36,26 +30,20 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "Eres un mentor de robótica exigente. Explica claro, corrige errores, da ejemplos en C++ y haz preguntas desafiantes."
+            content: "Eres un mentor de robótica exigente. Explica bien, corrige, y da ejemplos en C++."
           },
-          { role: "user", content: message }
+          {
+            role: "user",
+            content: message
+          }
         ]
       })
     });
 
-    console.log("STATUS:", response.status);
+    const data = await response.json();
+    console.log("RESPUESTA IA:", data);
 
-    const text = await response.text();
-    console.log("RAW:", text);
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      return res.json({ reply: "Respuesta inválida del servidor IA" });
-    }
-
-    let reply = "No hubo respuesta";
+    let reply = "Sin respuesta";
 
     if (data.choices && data.choices.length > 0) {
       reply = data.choices[0].message.content;
@@ -65,9 +53,9 @@ app.post("/chat", async (req, res) => {
 
     res.json({ reply });
 
-  } catch (err) {
-    console.log("ERROR FETCH:", err);
-    res.json({ reply: "Error conectando con IA 😞" });
+  } catch (error) {
+    console.log("ERROR:", error);
+    res.json({ reply: "Error conectando con IA" });
   }
 });
 
