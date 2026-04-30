@@ -9,7 +9,6 @@ const API_KEY = process.env.API_KEY;
 
 let memory = [];
 
-console.log("API KEY:", API_KEY);
 
 app.get("/", (req, res) => {
   res.send("Servidor activo 🚀");
@@ -75,3 +74,6 @@ app.post("/chat", async (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Servidor listo 🚀");
 });
+
+console.log("API KEY:", API_KEY);
+console.log("SERVIDOR ACTUALIZADO 🚀");
