@@ -9,6 +9,8 @@ const API_KEY = process.env.API_KEY;
 
 let memory = [];
 
+console.log("API KEY:", API_KEY);
+
 app.get("/", (req, res) => {
   res.send("Servidor activo 🚀");
 });
