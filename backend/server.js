@@ -28,7 +28,7 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "Eres un mentor de robótica exigente. Explica bien, corrige errores, da ejemplos en C++ y haz preguntas desafiantes."
+            content: "Eres un mentor de robótica exigente. Explica claro, corrige errores, da ejemplos en C++ y haz preguntas."
           },
           ...memory,
           { role: "user", content: message }
@@ -38,14 +38,23 @@ app.post("/chat", async (req, res) => {
 
     const data = await response.json();
 
-    console.log("RESPUESTA IA:", data);
+    console.log("RESPUESTA IA:", JSON.stringify(data, null, 2));
 
-    let reply = "Error con IA";
+    let reply = "No hubo respuesta válida";
 
     if (data.choices && data.choices.length > 0) {
-      reply = data.choices[0].message.content;
+      reply =
+        data.choices[0].message?.content ||
+        data.choices[0].text ||
+        JSON.stringify(data.choices[0]);
+    } else if (data.response) {
+      reply = data.response;
+    } else if (data.generated_text) {
+      reply = data.generated_text;
     } else if (data.error) {
-      reply = "Error: " + data.error.message;
+      reply = "Error IA: " + data.error.message;
+    } else {
+      reply = JSON.stringify(data);
     }
 
     memory.push({ role: "user", content: message });
