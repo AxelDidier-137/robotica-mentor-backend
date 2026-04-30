@@ -8,16 +8,22 @@ app.use(express.json());
 
 const API_KEY = process.env.API_KEY;
 
-console.log("BACKEND NUEVO REAL 🚀");
+// 🧠 memoria global (simple)
+let memory = [];
+
+console.log("BACKEND CON MEMORIA 🚀");
 
 app.get("/", (req, res) => {
-  res.send("Backend funcionando 🚀");
+  res.send("Backend funcionando con memoria 🧠");
 });
 
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
 
   try {
+    // 👉 agregamos el mensaje del usuario a memoria
+    memory.push({ role: "user", content: message });
+
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -29,12 +35,9 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "Eres un mentor de robótica exigente."
+            content: "Eres un mentor de robótica exigente. Corriges, explicas y haces pensar al usuario."
           },
-          {
-            role: "user",
-            content: message
-          }
+          ...memory
         ]
       })
     });
@@ -49,10 +52,19 @@ app.post("/chat", async (req, res) => {
       reply = "Error IA: " + data.error.message;
     }
 
+    // 👉 guardamos respuesta de la IA también
+    memory.push({ role: "assistant", content: reply });
+
+    // 🔥 límite de memoria (evita que crezca infinito)
+    if (memory.length > 20) {
+      memory = memory.slice(-20);
+    }
+
     res.json({ reply });
 
   } catch (err) {
-    res.json({ reply: "Error conectando" });
+    console.log(err);
+    res.json({ reply: "Error conectando con IA" });
   }
 });
 
