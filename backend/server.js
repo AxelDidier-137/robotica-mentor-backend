@@ -1,14 +1,14 @@
 const express = require("express");
 const cors = require("cors");
+const fetch = require("node-fetch");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 👉 usa la variable EXACTA de Render: API_KEY
 const API_KEY = process.env.API_KEY;
 
-// 👉 logs para confirmar
+// Logs
 console.log("SERVIDOR ACTUALIZADO 🚀");
 console.log("API KEY PRESENTE:", !!API_KEY);
 
@@ -20,15 +20,14 @@ app.post("/chat", async (req, res) => {
   const { message } = req.body;
 
   if (!API_KEY) {
-    return res.json({ reply: "Error: API_KEY no configurada en Render" });
+    return res.json({ reply: "Error: API_KEY no configurada" });
   }
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        // 👇 FORZAMOS header correcto
-        "Authorization": "Bearer " + API_KEY,
+        "Authorization": `Bearer ${API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -36,16 +35,24 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content:
-              "Eres un mentor de robótica exigente. Explica claro, corrige errores, da ejemplos en C++ y haz preguntas desafiantes."
+            content: "Eres un mentor de robótica exigente. Explica claro, corrige errores, da ejemplos en C++ y haz preguntas desafiantes."
           },
           { role: "user", content: message }
         ]
       })
     });
 
-    const data = await response.json();
-    console.log("RESPUESTA IA:", JSON.stringify(data));
+    console.log("STATUS:", response.status);
+
+    const text = await response.text();
+    console.log("RAW:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return res.json({ reply: "Respuesta inválida del servidor IA" });
+    }
 
     let reply = "No hubo respuesta";
 
@@ -58,8 +65,8 @@ app.post("/chat", async (req, res) => {
     res.json({ reply });
 
   } catch (err) {
-    console.log(err);
-    res.json({ reply: "Error conectando con IA" });
+    console.log("ERROR FETCH:", err);
+    res.json({ reply: "Error conectando con IA 😞" });
   }
 });
 
