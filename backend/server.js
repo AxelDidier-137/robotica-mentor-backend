@@ -5,10 +5,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 👇 API KEY (debe existir en Render como API_KEY)
 const API_KEY = process.env.API_KEY;
 
-let memory = [];
+// 👇 logs para confirmar que sí se actualizó
+console.log("SERVIDOR ACTUALIZADO 🚀");
+console.log("API KEY:", API_KEY);
 
+let memory = [];
 
 app.get("/", (req, res) => {
   res.send("Servidor activo 🚀");
@@ -44,14 +48,7 @@ app.post("/chat", async (req, res) => {
     let reply = "No hubo respuesta válida";
 
     if (data.choices && data.choices.length > 0) {
-      reply =
-        data.choices[0].message?.content ||
-        data.choices[0].text ||
-        JSON.stringify(data.choices[0]);
-    } else if (data.response) {
-      reply = data.response;
-    } else if (data.generated_text) {
-      reply = data.generated_text;
+      reply = data.choices[0].message?.content || data.choices[0].text;
     } else if (data.error) {
       reply = "Error IA: " + data.error.message;
     } else {
@@ -74,6 +71,3 @@ app.post("/chat", async (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Servidor listo 🚀");
 });
-
-console.log("API KEY:", API_KEY);
-console.log("SERVIDOR ACTUALIZADO 🚀");
