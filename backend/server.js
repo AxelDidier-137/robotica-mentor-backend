@@ -5,12 +5,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 👉 usa la variable EXACTA de Render: API_KEY
 const API_KEY = process.env.API_KEY;
 
+// 👉 logs para confirmar
 console.log("SERVIDOR ACTUALIZADO 🚀");
-console.log("API KEY:", API_KEY);
-
-let memory = [];
+console.log("API KEY PRESENTE:", !!API_KEY);
 
 app.get("/", (req, res) => {
   res.send("Servidor activo 🚀");
@@ -19,11 +19,16 @@ app.get("/", (req, res) => {
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
 
+  if (!API_KEY) {
+    return res.json({ reply: "Error: API_KEY no configurada en Render" });
+  }
+
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${API_KEY}`,
+        // 👇 FORZAMOS header correcto
+        "Authorization": "Bearer " + API_KEY,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -31,17 +36,16 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: "Eres un mentor de robótica exigente. Explica claro, corrige errores, da ejemplos en C++ y desafía al usuario."
+            content:
+              "Eres un mentor de robótica exigente. Explica claro, corrige errores, da ejemplos en C++ y haz preguntas desafiantes."
           },
-          ...memory,
           { role: "user", content: message }
         ]
       })
     });
 
     const data = await response.json();
-
-    console.log("RESPUESTA IA:", JSON.stringify(data, null, 2));
+    console.log("RESPUESTA IA:", JSON.stringify(data));
 
     let reply = "No hubo respuesta";
 
@@ -50,11 +54,6 @@ app.post("/chat", async (req, res) => {
     } else if (data.error) {
       reply = "Error IA: " + data.error.message;
     }
-
-    memory.push({ role: "user", content: message });
-    memory.push({ role: "assistant", content: reply });
-
-    if (memory.length > 20) memory = memory.slice(-20);
 
     res.json({ reply });
 
